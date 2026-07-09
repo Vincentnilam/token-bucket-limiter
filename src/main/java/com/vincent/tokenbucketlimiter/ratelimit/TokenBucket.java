@@ -27,7 +27,7 @@ public class TokenBucket {
     }
 
     public synchronized boolean tryConsume() {
-        refillTokens();
+        refill();
         if (availableTokens < 1) {
             return false;
         }
