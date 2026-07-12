@@ -1,3 +1,9 @@
 spring:
   application:
     name: token-bucket-limiter
+
+ratelimit:
+  capacity: 10
+  refill-tokens: 10
+  refill-interval-millis: 1000
+

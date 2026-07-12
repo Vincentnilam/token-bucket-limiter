@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -26,7 +27,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private long refillIntervalMillis;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         // get IP
         String key = request.getRemoteAddr();
         TokenBucket bucket = buckets.computeIfAbsent(key, k -> new TokenBucket(capacity, refillTokens, refillIntervalMillis));
@@ -36,6 +37,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         }
         // set 429
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.getWriter().write("Rate limit exceeded");
 
         return false;
     }
