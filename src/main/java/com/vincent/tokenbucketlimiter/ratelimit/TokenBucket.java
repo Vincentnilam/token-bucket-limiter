@@ -53,4 +53,15 @@ public class TokenBucket {
         refill();
         return availableTokens;
     }
+
+    public synchronized long millisUntilNextToken() {
+        refill();
+        if (availableTokens >= 1) {
+            return 0;
+        }
+        double deficit = 1 - availableTokens;
+        // need refill tokens every refillIntervalMillis -> 1 token takes reffillIntervalMillis/refilltoken
+        double msPerToken = ((double)refillIntervalMillis / refillTokens);
+        return (long) Math.ceil(deficit * msPerToken);
+    }
 }

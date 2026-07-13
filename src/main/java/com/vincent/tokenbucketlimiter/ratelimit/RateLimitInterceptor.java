@@ -3,7 +3,6 @@ package com.vincent.tokenbucketlimiter.ratelimit;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -37,7 +36,14 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         }
         // set 429
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.setContentType("text/plain;charset=UTF-8");
+        // set Retry-After header
+        long ms = bucket.millisUntilNextToken();
+        long seconds = Math.max(1, (long) Math.ceil(ms / 1000.0));
+        response.setHeader("Retry-After", String.valueOf(seconds));
+
         response.getWriter().write("Rate limit exceeded");
+
 
         return false;
     }

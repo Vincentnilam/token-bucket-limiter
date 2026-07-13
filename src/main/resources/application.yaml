@@ -4,6 +4,6 @@ spring:
 
 ratelimit:
   capacity: 10
-  refill-tokens: 10
+  refill-tokens: 1
   refill-interval-millis: 1000
 
