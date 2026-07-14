@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
@@ -27,6 +28,17 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+
+        // check annotation first
+        if (handler instanceof HandlerMethod handlerMethod) {
+            RateLimit rateLimit = handlerMethod.getMethodAnnotation(RateLimit.class);
+            if (rateLimit == null) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+
         // get IP
         String key = request.getRemoteAddr();
         TokenBucket bucket = buckets.computeIfAbsent(key, k -> new TokenBucket(capacity, refillTokens, refillIntervalMillis));
